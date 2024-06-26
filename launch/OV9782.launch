@@ -1,0 +1,29 @@
+<launch>
+    <arg name="fps" default = "30" />
+    <arg name="rgb" default = "true" />
+    <arg name="resolution" default = "720"/>
+    <arg name="auto_expose" default = "false"/>
+    <arg name="expose_time_us" default = "40000"/>
+    <arg name="iso" default = "200"/>
+    <arg name="auto_awb" default = "false"/>
+    <arg name="awb_value" default = "3000"/>
+    <arg name="ros_defined_freq" default = "true"/>
+    <arg name="sharpness_calibration_mode" default = "false"/>
+    <arg name="compressed_mode" default= "false" />
+    <arg name="enable_upside_down" default = "true"/>
+
+    <node name="oak_ffc_4p_ros" pkg="oak_ffc_4p_ros" type="oak_ffc_4p_ros_node" output="screen">
+        <param name="fps" value="$(arg fps)" />
+        <param name="rgb" value="$(arg rgb)" />
+        <param name="resolution" value = "$(arg resolution)"/>
+        <param name="auto_expose" value = "$(arg auto_expose)"/>
+        <param name="expose_time_us" value = "$(arg expose_time_us)"/>
+        <param name="iso" value = "$(arg iso)"/>
+        <param name="auto_awb" value = "$(arg auto_awb)"/>
+        <param name="awb_value" value = "$(arg awb_value)"/>
+        <param name="ros_defined_freq" value = "$(arg ros_defined_freq)"/>
+        <param name="sharpness_calibration_mode" value = "$(arg sharpness_calibration_mode)"/>
+        <param name="compressed_mode" value = "$(arg compressed_mode)" />
+        <param name="enable_upside_down" value ="$(arg enable_upside_down)"/>
+    </node>
+</launch>

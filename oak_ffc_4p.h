@@ -18,7 +18,8 @@ namespace OAKCAM {
 
 class FFC4PDriver {
  public:
-  // Mono cam resolution
+  // configurations
+  //  Mono cam resolution
   std::map<std::string, dai::MonoCameraProperties::SensorResolution>
       mono_res_opts = {
           {"400", dai::MonoCameraProperties::SensorResolution::THE_400_P},
@@ -40,6 +41,7 @@ class FFC4PDriver {
           {"12mp", dai::ColorCameraProperties::SensorResolution::THE_12_MP},
           {"48mp", dai::ColorCameraProperties::SensorResolution::THE_48_MP},
   };
+  //
 
   struct CameraModuleConfig {
     bool rgb = true;
@@ -51,10 +53,10 @@ class FFC4PDriver {
     bool compressed_mode = false;
     bool enable_upside_down = false;
     int32_t fps = 30.0;
-    int32_t resolution = 720;
     int32_t expose_time_us = 10000;
     int32_t iso = 400;
     int32_t awb_value = 4000;
+    std::string resolution = "720";
   };
 
   struct FFCCameraConfig {

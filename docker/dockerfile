@@ -10,7 +10,7 @@ WORKDIR ${DEPTH_CORE}
 
 RUN apt-get update &&\
     apt-get install -y \
-    vim wget pip clang-format\
+    vim wget pip clang-format gdb xterm\
     ros-noetic-depthai-bridge \
     ros-noetic-depthai-ros-msgs \
     ros-noetic-image-transport \

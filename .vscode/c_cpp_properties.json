@@ -6,7 +6,8 @@
                 "${workspaceFolder}/**",
                 "/usr/local/include",
                 "/usr/include",
-                "/opt/ros/noetic/include/"
+                "/opt/ros/noetic/include/",
+                "/root/3rd_party/depthai-core-v2.26.0/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",

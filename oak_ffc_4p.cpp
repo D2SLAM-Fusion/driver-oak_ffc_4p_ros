@@ -20,6 +20,7 @@
 #include <depthai/build/version.hpp>
 #include <depthai/depthai.hpp>
 #include <depthai/utility/Clock.hpp>
+#include <depthai-shared/datatype/RawCameraControl.hpp>
 #include <deque>
 #include <iostream>
 #include <list>
@@ -93,24 +94,22 @@ void FFC4PDriver::GetParameters(ros::NodeHandle& nh) {
   nh.getParam("compressed_mode", this->module_config_.compressed_mode);
   nh.getParam("enable_upside_down", this->module_config_.enable_upside_down);
   if (this->module_config_.rgb) {
-    if (color_res_opts.find(std::to_string(this->module_config_.resolution)) ==
+    if (color_res_opts.find(this->module_config_.resolution) ==
         color_res_opts.end()) {
       ROS_ERROR("Resolution %d not supported, use default\n",
                 this->module_config_.resolution);
       this->rgb_resolution_ = color_res_opts["720"];
     } else {
-      this->rgb_resolution_ =
-          color_res_opts[std::to_string(this->module_config_.resolution)];
+      this->rgb_resolution_ = color_res_opts[this->module_config_.resolution];
     }
   } else {
-    if (mono_res_opts.find(std::to_string(this->module_config_.resolution)) ==
+    if (mono_res_opts.find(this->module_config_.resolution) ==
         mono_res_opts.end()) {
       ROS_ERROR("Resolution %d not supported, use default\n",
                 this->module_config_.resolution);
       this->mono_resolution_ = mono_res_opts["720"];
     } else {
-      this->mono_resolution_ =
-          mono_res_opts[std::to_string(this->module_config_.resolution)];
+      this->mono_resolution_ = mono_res_opts[this->module_config_.resolution];
     }
   }
   return;
@@ -197,7 +196,6 @@ int32_t FFC4PDriver::Init() {
 
 void FFC4PDriver::StartVideoStream() {
   if (this->module_config_.ros_defined_freq) {
-    printf("Use timer\n");
     this->ros_rate_ptr_ = std::make_unique<ros::Rate>(this->module_config_.fps);
     this->grab_thread_ = std::thread(&FFC4PDriver::RosGrabImgThread, this);
   } else {
@@ -238,8 +236,12 @@ void FFC4PDriver::GrabImg() {
     auto packet = msg_data->get<dai::ImgFrame>(camera.stream_name);
     if (packet) {
       image_pub_node_[camera.stream_name].image = packet->getCvFrame();
+      // resize if need, here for best latency, we don't resize
+      // cv::resize(image_pub_node_[camera.stream_name].image,
+      //            image_pub_node_[camera.stream_name].image,
+      //            cv::Size(1280, 720));
       image_pub_node_[camera.stream_name].cap_time_stamp =
-          packet->getTimestampDevice();
+          packet->getTimestamp();
       // image_pub_node_[camera.stream_name]->frame_counter++;
     } else {
       ROS_WARN("Get %s frame failed\n", camera.stream_name.c_str());
@@ -260,8 +262,6 @@ void FFC4PDriver::GrabImg() {
 
   auto host_time_now = dai::Clock::now();
   int colow_position = 0;
-  // int image_conter = 0;
-
   if (this->module_config_.enable_upside_down) {
     for (auto& image_node : this->image_pub_node_) {
       cv::flip(image_node.second.image, image_node.second.image, -1);
@@ -269,11 +269,11 @@ void FFC4PDriver::GrabImg() {
   }
 
   if (this->module_config_.sharpness_calibration_mode) {
-    for (auto& image_node : this->image_pub_node_) {
-      cv_img.image = image_node.second.image;
-      image_node.second.ros_publisher_ptr->publish(
-          cv_img.toCompressedImageMsg());
-    }
+    // for (auto& image_node : this->image_pub_node_) {
+    //   cv_img.image = image_node.second.image;
+    //   image_node.second.ros_publisher_ptr->publish(
+    //       cv_img.toCompressedImageMsg());
+    // }
   } else {
     for (auto& image_node : this->image_pub_node_) {
       image_node.second.image.copyTo(
@@ -285,8 +285,8 @@ void FFC4PDriver::GrabImg() {
     } else {
       assemble_image_publisher_.publish(assemble_cv_img.toImageMsg());
     }
+    this->expose_time_publisher_.publish(expose_time_msg);
   }
-  this->expose_time_publisher_.publish(expose_time_msg);
   if (this->module_config_.sharpness_calibration_mode) {
     for (auto& image_node : image_pub_node_) {
       this->ShowImg(image_node.second, host_time_now);
@@ -299,28 +299,19 @@ void FFC4PDriver::ShowImg(
     ImagePubNode& image_node,
     std::chrono::_V2::steady_clock::time_point& time_now) {
   if (image_node.image.empty()) {
-    // ROS_ERROR("Image empty\n");
     return;
   } else {
-    if (!this->module_config_.show_img_info) {
-      // ROS_DEBUG("Show pure image\n");
-      cv::imshow(image_node.topic.c_str(), image_node.image);
-      cv::waitKey(1);
-    } else {
-      // printf("Show info image\n");
-      double clearness = Clearness(image_node.image);
-      uint32_t latency_us =
-          std::chrono::duration_cast<std::chrono::microseconds>(
-              time_now - image_node.cap_time_stamp)
-              .count();
-      std::stringstream info;
-      info << image_node.topic << "clearness: = " << clearness
-           << "    image_delay ms:=" << (latency_us / 1000);
-      cv::putText(image_node.image, info.str(), cv::Point(10, 30),
-                  cv::FONT_HERSHEY_PLAIN, 1.5, cv::Scalar(255, 255, 0));
-      cv::imshow(image_node.topic, image_node.image);
-      cv::waitKey(1);
-    }
+    double clearness = Clearness(image_node.image);
+    uint32_t latency_us = std::chrono::duration_cast<std::chrono::microseconds>(
+                              time_now - image_node.cap_time_stamp)
+                              .count();
+    std::stringstream info;
+    info << image_node.topic << "clearness: = " << clearness
+         << "    image_delay ms:=" << (latency_us / 1000);
+    cv::putText(image_node.image, info.str(), cv::Point(10, 30),
+                cv::FONT_HERSHEY_PLAIN, 1.5, cv::Scalar(255, 255, 0));
+    cv::imshow(image_node.topic, image_node.image);
+    cv::waitKey(1);
   }
   return;
 }
@@ -347,10 +338,8 @@ ros::Time convertToRosTime(
   // 获取从程序启动开始的时间点,单位为秒
   std::chrono::duration<double> duration = time_point.time_since_epoch();
   double seconds = duration.count();
-
   // 获取 ROS 启动时的时间
   ros::Time rosStartTime = ros::Time::now();
-
   // 计算当前时间
   ros::Time currentTime = rosStartTime + ros::Duration(seconds);
 

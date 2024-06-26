@@ -3,7 +3,7 @@
 # Usage: ./start_ffc_4p_docker.sh  1 to start docker only for image transportation.
 # Please do not move this file to other dir, it will cause the docker container can not find the current dir.
 
-DOCKERIMAGE="quad_cam:latest "
+DOCKERIMAGE="quad_cam:latest"
 if [ $# -eq 0 ]; then
   echo "[INFO] No start option, will start docker container only for application"
   START_OPTION=0

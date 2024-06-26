@@ -13,7 +13,7 @@ RUN apt-get update &&\
     vim \ 
     wget \
     ros-noetic-depthai-bridge \
-    ros-depthai_ros_msgs \
+    ros-noetic-depthai-ros-msgs \
     ros-noetic-image-transport \
     ros-noetic-cv-bridge
 

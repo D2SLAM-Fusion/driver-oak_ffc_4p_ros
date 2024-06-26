@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>oak_ffc_4p_ros</name>
+  <version>0.0.0</version>
+  <description>The arducam_ros package based on v4l2</description>
+
+  <maintainer email="mortyl0834@gmail.com">dji</maintainer>
+
+
+  <license>LGPLv3</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>cv_bridge</build_depend>
+  <build_depend>image_transport</build_depend>
+  <build_depend>nodelet</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_export_depend>cv_bridge</build_export_depend>
+  <build_export_depend>image_transport</build_export_depend>
+  <build_export_depend>nodelet</build_export_depend>
+  <build_export_depend>roscpp</build_export_depend>
+  <build_export_depend>sensor_msgs</build_export_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>image_transport</exec_depend>
+  <exec_depend>nodelet</exec_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <depend>depthai</depend>
+  <depend>depthai_bridge</depend>
+  <depend>depthai_descriptions</depend>
+
+
+  <export>
+  </export>
+</package>

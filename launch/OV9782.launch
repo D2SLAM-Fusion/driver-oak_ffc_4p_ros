@@ -3,7 +3,7 @@
     <arg name="rgb" default = "true" />
     <arg name="resolution" default = "720"/>
     <arg name="auto_expose" default = "false"/>
-    <arg name="expose_time_us" default = "30000"/>
+    <arg name="expose_time_us" default = "20000"/>
     <arg name="iso" default = "200"/>
     <arg name="auto_awb" default = "false"/>
     <arg name="awb_value" default = "3000"/>

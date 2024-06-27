@@ -17,10 +17,10 @@
 
 #include <chrono>
 #include <csignal>
+#include <depthai-shared/datatype/RawCameraControl.hpp>
 #include <depthai/build/version.hpp>
 #include <depthai/depthai.hpp>
 #include <depthai/utility/Clock.hpp>
-#include <depthai-shared/datatype/RawCameraControl.hpp>
 #include <deque>
 #include <iostream>
 #include <list>
@@ -226,7 +226,7 @@ void FFC4PDriver::GrabImg() {
   static cv_bridge::CvImage cv_img, assemble_cv_img;
   static std_msgs::Int32 expose_time_msg;
   static cv::Mat assemble_cv_mat = cv::Mat::zeros(720, 5120, CV_8UC3);
-  static auto const msgGrp = this->device_->getOutputQueue("msgOut", 4, false);
+  static auto const msgGrp = this->device_->getOutputQueue("msgOut", 1, false);
 
   auto msg_data = msgGrp->get<dai::MessageGroup>();
   if (msg_data == nullptr) {

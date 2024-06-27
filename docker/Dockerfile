@@ -60,11 +60,19 @@ RUN wget https://github.com/fmtlib/fmt/archive/refs/tags/7.1.3.tar.gz &&\
 RUN echo "source /opt/ros/${ROS_VERSION}/setup.bash" >> ~/.bashrc &&\
     source ~/.bashrc
     
+
+
+# Build oak_ffc_4p_ros
+COPY . ${OAK_WS}/src/oak_ffc_4p_ros
+
+RUN source "/opt/ros/${ROS_VERSION}/setup.bash" &&\
+    cd ${OAK_WS} &&\
+    catkin build &&\
+    echo "source ${OAK_WS}/devel/setup.bash" >> ~/.bashrc &&\
+    source ~/.bashrc
+
 WORKDIR ${OAK_WS}
 
-# RUN mkdir -p ${OAK_WS}/src &&\
-#     cd ${OAK_WS}/src &&\
-#     ca
 
 # RUN source "/opt/ros/noetic/setup.bash" &&\
 #     cd ${OAK_WS} &&\

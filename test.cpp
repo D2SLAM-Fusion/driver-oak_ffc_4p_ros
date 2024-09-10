@@ -224,8 +224,57 @@ int main() {
   auto sync = pipeline.create<dai::node::Sync>();
   // sync->setSyncThreshold(std::chrono::seconds(1));
   auto xOut = pipeline.create<dai::node::XLinkOut>();
+
+  // IMU data
+
+  auto imuType = device.getConnectedIMU();
+  auto imuFirmwareVersion = device.getIMUFirmwareVersion();
+  std::cout << "IMU type: " << imuType << ", firmware version: " << imuFirmwareVersion << std::endl;
+
+  if(imuType != "BNO086") {
+      std::cout << "Rotation vector output is supported only by BNO086!" << std::endl;
+      return 1;
+  }
+
+  auto imu = pipeline.create<dai::node::IMU>();
+  // enable ACCELEROMETER_RAW and GYROSCOPE_RAW at 100 hz rate
+  imu->enableIMUSensor({dai::IMUSensor::ACCELEROMETER_RAW, dai::IMUSensor::GYROSCOPE_RAW}, 100);
+  // above this threshold packets will be sent in batch of X, if the host is not blocked and USB bandwidth is available
+  imu->setBatchReportThreshold(1);
+  // maximum number of IMU packets in a batch, if it's reached device will block sending until host can receive it
+  // if lower or equal to batchReportThreshold then the sending is always blocking on device
+  // useful to reduce device's CPU load  and number of lost packets, if CPU load is high on device side due to multiple nodes
+  imu->setMaxBatchReports(100);
+
+  // auto script = pipeline.create<dai::node::Script>();
+  // script->setScript(R"(
+  //     import time
+  //     import marshal
+  //     num = 123
+  //     node.warn(f"Number {num}") # Print to host
+  //     x = [1, "Hello", {"Foo": "Bar"}]
+  //     x_serial = marshal.dumps(x)
+  //     b = Buffer(len(x_serial))
+  //     while True:
+  //         time.sleep(1)
+  //         b.setData(x_serial)
+  //         node.io['out'].send(b)
+  // )");
+  // script->outputs["out"].link(xout->input);
+
+// ...
+// After initializing the device, enable log levels
+  // device.setLogLevel(dai::LogLevel.WARN);
+  // device.setLogOutputLevel(dai::LogLevel.WARN);
+  
   xOut->setStreamName("msgOut");
+
+  sync->setSyncAttempts(-1);
   sync->out.link(xOut->input);
+
+  //IMU sync
+  imu->out.link(sync->inputs["imu"]);
+
   // 遍历相机列表并配置管道
   for (const auto& cam_name : cam_list) {
     if (color) {
@@ -252,7 +301,7 @@ int main() {
   // 启动管道
   device.startPipeline(pipeline);
 
-  auto const msgGrp = device.getOutputQueue("msgOut", 4, false);
+  auto const msgGrp = device.getOutputQueue("msgOut", 5, false);
 
   FPSHandler fps_handler;
 
@@ -261,6 +310,10 @@ int main() {
     auto msgData = msgGrp->get<dai::MessageGroup>();
     if (msgData == nullptr) {
       continue;
+    }
+    auto imu_packet = msgData->get<dai::IMUData>("imu");
+    if (imu_packet) {
+      std::cout << "IMU packet: " << imu_packet->packets.size() << '\n';
     }
     for (const auto& cam_name : cam_list) {
       // 从设备获取相机输出数据包

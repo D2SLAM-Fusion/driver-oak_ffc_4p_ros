@@ -51,3 +51,11 @@ roslaunch oak_ffc_4p_ros OV9782.launch
 ```
 
 ![image-20240627163209926](https://raw.githubusercontent.com/Peize-Liu/my-images/master/202406271632004.png)
+
+### Tools
+We provide python tools to process the rosbag data
+
+```
+conda env create -f environment.yml
+conda activate oak_ros_tool_env
+```

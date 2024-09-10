@@ -17,7 +17,6 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   depthai_ros_msgs
   depthai_bridge
-  # depthai
 )
 
 catkin_package(
@@ -44,10 +43,10 @@ include_directories(
 )
 
 link_directories(
-  /root/3rd_party/depthai-core-v2.26.0/build/
+  /root/3rd_party/depthai-core/build/
   /root/3rd_party/XLink/build
-  /root/3rd_party/spdlog-1.8.2/build
-  /root/3rd_party/fmt-7.1.3/build
+  /root/3rd_party/spdlog/build
+  /root/3rd_party/fmt/build
 )
 
 add_executable(${PROJECT_NAME}_test test.cpp)
@@ -66,8 +65,8 @@ target_link_libraries(${PROJECT_NAME}_test
 target_include_directories(${PROJECT_NAME}_test PUBLIC
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
-  /root/3rd_party/depthai-core-v2.26.0/build/install/include
-  /root/3rd_party/XLink/build/install/include
+  # /root/3rd_party/depthai-core-v2.28.0/build/install/include
+  # /root/3rd_party/XLink/build/install/include
 )
 
 add_library(${PROJECT_NAME}_lib STATIC

@@ -2,8 +2,9 @@ FROM ros:noetic-robot-focal
 ARG OAK_WS=/root/oak_ffc_ws/
 ARG DEPTH_CORE=/root/3rd_party/
 ARG ROS_VERSION=noetic
-ARG DEPTH_AI_CORE=2.26.0
-
+ARG DEPTH_AI_CORE=2.28.0
+ARG SPDLOG=1.8.2
+ARG FMT=7.1.3
 SHELL ["/bin/bash", "-c"] 
 
 WORKDIR ${DEPTH_CORE}
@@ -17,28 +18,29 @@ RUN apt-get update &&\
     ros-noetic-cv-bridge \
     python3-catkin-tools
 
-
 # install depth-ai core   
-RUN wget https://github.com/luxonis/depthai-core/releases/download/v2.26.0/depthai-core-v${DEPTH_AI_CORE}.tar.gz  &&\
+RUN wget https://github.com/luxonis/depthai-core/releases/download/v${DEPTH_AI_CORE}/depthai-core-v${DEPTH_AI_CORE}.tar.gz  &&\
     tar -xvf depthai-core-v${DEPTH_AI_CORE}.tar.gz &&\
+    mv depthai-core-v${DEPTH_AI_CORE} depthai-core &&\
     rm depthai-core-v${DEPTH_AI_CORE}.tar.gz &&\
-    cd depthai-core-v${DEPTH_AI_CORE} &&\
+    cd depthai-core &&\
     mkdir build &&\
     cd build &&\
     cmake .. &&\
     make -j$(nproc) &&\
     make install
 
-RUN cd ${DEPTH_CORE}/depthai-core-v${DEPTH_AI_CORE}/build/install/include &&\
+RUN cd ${DEPTH_CORE}/depthai-core/build/install/include &&\
     mv ./depthai /usr/local/include/depthai &&\
     mv ./depthai-shared /usr/local/include/depthai-shared &&\
     mv ./depthai-bootloader-shared /usr/local/include/depthai-bootloader-shared
 
 # install spdlog
-RUN wget https://github.com/gabime/spdlog/archive/refs/tags/v1.8.2.tar.gz &&\
-    tar -xvf v1.8.2.tar.gz &&\
-    rm v1.8.2.tar.gz &&\
-    cd spdlog-1.8.2 &&\
+RUN wget https://github.com/gabime/spdlog/archive/refs/tags/v${SPDLOG}.tar.gz &&\
+    tar -xvf v${SPDLOG}.tar.gz &&\
+    mv spdlog-${SPDLOG} spdlog &&\
+    rm v${SPDLOG}.tar.gz &&\
+    cd spdlog &&\
     mkdir build &&\
     cd build &&\
     cmake .. &&\
@@ -46,10 +48,11 @@ RUN wget https://github.com/gabime/spdlog/archive/refs/tags/v1.8.2.tar.gz &&\
     make install
 
 # install fmt
-RUN wget https://github.com/fmtlib/fmt/archive/refs/tags/7.1.3.tar.gz &&\
-    tar -xvf 7.1.3.tar.gz &&\
-    rm 7.1.3.tar.gz &&\
-    cd fmt-7.1.3 &&\
+RUN wget https://github.com/fmtlib/fmt/archive/refs/tags/${FMT}.tar.gz &&\
+    tar -xvf ${FMT}.tar.gz &&\
+    rm ${FMT}.tar.gz &&\
+    mv fmt-${FMT} fmt &&\
+    cd fmt &&\
     mkdir build &&\
     cd build &&\
     cmake .. &&\

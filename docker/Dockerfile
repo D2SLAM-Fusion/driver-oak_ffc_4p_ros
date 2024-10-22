@@ -62,8 +62,6 @@ RUN wget https://github.com/fmtlib/fmt/archive/refs/tags/${FMT}.tar.gz &&\
 # ROS ENV setup
 RUN echo "source /opt/ros/${ROS_VERSION}/setup.bash" >> ~/.bashrc &&\
     source ~/.bashrc
-    
-
 
 # Build oak_ffc_4p_ros
 COPY . ${OAK_WS}/src/oak_ffc_4p_ros
@@ -76,7 +74,6 @@ RUN source "/opt/ros/${ROS_VERSION}/setup.bash" &&\
 
 WORKDIR ${OAK_WS}
 
-
-# RUN source "/opt/ros/noetic/setup.bash" &&\
-#     cd ${OAK_WS} &&\
-#     catkin_make
+RUN source "/opt/ros/noetic/setup.bash" &&\
+    cd ${OAK_WS} &&\
+    catkin_make
